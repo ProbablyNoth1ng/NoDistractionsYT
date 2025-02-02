@@ -3,21 +3,25 @@
     "version": "0.1.0",
     "description": "extension for decreasing screen time on youtube",
     "manifest_version": 3,
-    "icons":{
-        "48":"./images/icon48.png",
-        "128":"./images/icon128.png"
+    "icons": {
+        "48": "./images/icon48.png",
+        "128": "./images/icon128.png"
     },
-    "action":{
+    "action": {
         "default_popup": "index.html"
     },
-    "permissions":[
+    "content_scripts": [{
+        "matches": ["https://*.youtube.com/*"],
+        "js": ["content.js","main.js"],
+        "run_at": "document_end"
+    }],
+    "permissions": [
         "activeTab",
         "scripting",
         "tabs",
         "storage"
     ],
-    "host_permissions":[
+    "host_permissions": [
         "https://*.youtube.com/*"
-
     ]
 }
