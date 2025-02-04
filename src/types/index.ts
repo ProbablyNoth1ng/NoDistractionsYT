@@ -1,5 +1,5 @@
 export interface MessageType {
-    action: 'toggleShorts'; 
+    action: 'toggleOnShorts' | 'toggleOffShorts'; 
     value: boolean;         
 }
 
