@@ -1,6 +1,7 @@
 import { MessageType } from "../types";
 
 function removeShorts(state:boolean){
+        console.log("🔍 Checking for Shorts...");
     let shorts = document.querySelectorAll('ytd-rich-grid-renderer [is-show-less-hidden]')
     console.log(shorts) 
     shorts.forEach(elem => {
@@ -28,24 +29,19 @@ function removeShorts(state:boolean){
 
     return {processed:true}
 }
-const observer = new MutationObserver((mutations:MutationRecord[]) =>{
-    mutations.forEach((mutation) =>{
-        // if(mutation.type === "childList"){
-        //     removeShorts();      
-        // }
-    })
-})
 
-observer.observe(document.body, {
-    childList:true,
-    subtree:true,
-})
-
+function runWhenReady(callback: () => void){
+        if(document.readyState === "complete"){
+            callback();
+        } else {
+            window.addEventListener("load",callback)
+        }
+}
 
 
 chrome.runtime.onMessage.addListener(
    (message:MessageType, sender,sendResponse) => {
-    console.log(sender)
+    console.log("📨 Received message:", message);
     switch(message.action){
         case 'toggleOffShorts':
             sendResponse({success:true, data:removeShorts(true)})
@@ -58,3 +54,22 @@ chrome.runtime.onMessage.addListener(
 })
 
 
+const observer = new MutationObserver(() => {
+    console.log("🔄 Page updated - reapplying Shorts removal...");
+    chrome.storage.local.get("disableShorts",(data) =>{
+        data.disableShorts ? removeShorts(true) : removeShorts(false)
+    })
+})
+
+observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+});
+
+runWhenReady(() => {
+    console.log("🚀 Page fully loaded - Checking Shorts state...");
+    chrome.storage.local.get("disableShorts", (data) => {
+        data.disableShorts ? removeShorts(true) : removeShorts(false)
+    })
+
+})

@@ -56,11 +56,12 @@
             const data = await chrome.storage?.local?.get('disableShorts') as StorageData
             const isDisabled = data.disableShorts || false
             setChecked(isDisabled)
+
             console.log(isDisabled)
-            if(isDisabled){
-              await sendMessageToContentScript(isDisabled)
-            }
-            
+            await sendMessageToActiveTab({
+              action:`${isDisabled ? "toggleOffShorts" : "toggleOnShorts"}`,
+              value: isDisabled 
+            });
           
           
         }catch (error){
@@ -77,45 +78,18 @@
         
         setChecked(isChecked);
         console.log('State updated to:', isChecked); // Check if state is updating
-      
+        await sendMessageToActiveTab({
+          action:`${isChecked ? "toggleOffShorts" : "toggleOnShorts"}`,
+          value: isChecked 
+        });
         try {
           await chrome.storage.local.set({ disableShorts: isChecked });
           console.log('Storage updated:', isChecked); // Check if storage is updating
-      
-          await sendMessageToActiveTab({
-            action:`${isChecked ? "toggleOffShorts" : "toggleOnShorts"}`,
-            value: isChecked
-          });
-          console.log('Message sent to content script'); // Check if message is being sent
         } catch (error) {
           console.error('Error:', error);
         }
       };
-
-      // const handleChange = async (event:React.ChangeEvent<HTMLInputElement>) => {
-      //   const isChecked = event.target.checked
-      //   console.log(isChecked)
-      //   setChecked(isChecked);
-
-      //   try{
-      //     await chrome.storage.local.set({disableShort: isChecked})
-      //     console.log("switch state saved:", isChecked)
-        
-      //     await sendMessageToActiveTab({
-      //       action: 'toggleShorts',
-      //       value: isChecked
-      //   }); 
-
-      //   } catch(error){
-      //     console.error('Failed to update state:', error)
-      //     setChecked(!isChecked)
-
-      //   }
-
-
-      // };
-
-    
+      
       
       return (
           <>
