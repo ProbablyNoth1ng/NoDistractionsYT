@@ -15,6 +15,7 @@ function removeShorts(state:boolean){
        if(e.innerHTML == "Shorts"){
             if(state){
                 e.closest('ytd-guide-entry-renderer')?.classList.add('hidden')
+                
                 console.log(`toggled hidden ${e}`)
             } else {    
                 e.closest('ytd-guide-entry-renderer')?.classList.remove('hidden')
@@ -25,9 +26,42 @@ function removeShorts(state:boolean){
         console.log('didnt find') 
        }
     })  
-    // document.querySelector("ytd-reel-shelf-renderer ")?.remove()
 
+    if(state){
+        const toHide = document.querySelectorAll("ytd-reel-shelf-renderer ")
+        toHide.forEach((elem) => {
+            elem.classList.add('hidden')
+        })
+        // console.log("shorts under video"+document.querySelector("ytd-reel-shelf-renderer "))
+    } else {    
+        const toHide = document.querySelectorAll("ytd-reel-shelf-renderer ")
+        toHide.forEach((elem) => {
+            elem.classList.remove('hidden')
+        })
+        
+    }
+    
+    
     return {processed:true}
+}   
+
+const grayscaleMode = (state:boolean) => {
+    
+    const element = document.querySelector('ytd-app') as HTMLElement
+    console.log(element)
+
+    console.log('grayscalemode ' + state)
+    if(state){
+       
+            element.style.filter = 'grayscale(100%)';
+            element.setAttribute('style', 'filter: grayscale(100%) !important');
+
+    } else  {
+            element.style.filter = 'none';  
+            element.setAttribute('style', '');
+
+    }
+    
 }
 
 function runWhenReady(callback: () => void){
@@ -49,6 +83,13 @@ chrome.runtime.onMessage.addListener(
         case 'toggleOnShorts':
             sendResponse({success:true, data:removeShorts(false)})
             break
+        case 'toggleOffGrayscale':
+            sendResponse({success:true, data:grayscaleMode(false)})
+            break
+        case 'toggleOnGrayscale':
+            sendResponse({success:true, data:grayscaleMode(true)})
+            break;
+
     }
     return true;
 })
@@ -56,8 +97,10 @@ chrome.runtime.onMessage.addListener(
 
 const observer = new MutationObserver(() => {
     console.log("🔄 Page updated - reapplying Shorts removal...");
-    chrome.storage.local.get("disableShorts",(data) =>{
+    chrome.storage.local.get(['disableShorts','grayscale'],(data) =>{
         data.disableShorts ? removeShorts(true) : removeShorts(false)
+        data.grayscale ? grayscaleMode(true) : grayscaleMode(false)
+
     })
 })
 
@@ -71,5 +114,7 @@ runWhenReady(() => {
     chrome.storage.local.get("disableShorts", (data) => {
         data.disableShorts ? removeShorts(true) : removeShorts(false)
     })
-
+    chrome.storage.local.get("grayscale", (data) => {
+        data.grayscale ? grayscaleMode(true) : grayscaleMode(false)
+    })
 })

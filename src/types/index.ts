@@ -1,9 +1,12 @@
 export interface MessageType {
-    action: 'toggleOnShorts' | 'toggleOffShorts'; 
+    action: 'toggleOnShorts' | 'toggleOffShorts' | 'toggleOnGrayscale' | 'toggleOffGrayscale'; 
     value: boolean;         
 }
 
-export interface StorageData {
+export interface StorageShorts {
     disableShorts:boolean
 }
 
+export interface StorageGrayscale{
+    grayscale:boolean
+}
